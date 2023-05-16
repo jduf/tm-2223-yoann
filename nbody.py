@@ -57,8 +57,8 @@ class NBody:
         qui contient les distances entre les objets.
         """
         self.n_body = n_body
-        self.ds = DistanceMatrix(n_body)
         self.len = len(n_body)
+
 
     def __iter__(self) -> Iterator:
         """Permet de faire une boucle for sur l'ensemble des objets"""
@@ -68,7 +68,10 @@ class NBody:
     def compute_forces(self):
         G = 1  # 6.7*10**-11
         forces = []
-        self.ds = DistanceMatrix(self.n_body)
+        self.r_all = []
+        for i in range(self.len):
+            self.r_all.append(self.n_body[i].r)
+        self.ds = DistanceMatrix(self.r_all)
         for i, body in enumerate(self.n_body):
             for j, other_body in enumerate(self.n_body):
                 if body.r != other_body.r:
@@ -90,8 +93,7 @@ class NBody:
 # l'intervalle des forces s'appliquant sur l'objet j
 
             resultante_sur_j = Vector(0, 0)
-            len_fs_j = len(forces_sur_j)
-            for k in range(len_fs_j):
+            for k in range(self.len):
                 resultante_sur_j += forces_sur_j[k]
 
             resultantes.append(resultante_sur_j)

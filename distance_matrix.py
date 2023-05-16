@@ -49,21 +49,22 @@ from vector_finished import Vector
 
 class DistanceMatrix:
     """
-    Cette class fournit des outils simplifiant se suivit des distances entre
+    Cette class fournit des outils simplifiant le suivi des distances entre
     les objets.
     """
     def __init__(self, objects: list[Vector]):
         self.objects = objects
         self.n = len(objects)
-        self.update()
+        self.update(objects)
 
-    def update(self) -> None:
-        """Met à jour les distance entre les objets"""
+    def update(self, new_objects) -> None:
+        """Met à jour les distances entre les objets"""
         self.rij = []
         for j in range(self.n):
             for i in range(self.n):
                 if j < i:
-                    self.rij.append(self.objects[i] - self.objects[j])
+                    b = new_objects[i] - new_objects[j]
+                    self.rij.append(b)
                 else:
                     pass
 

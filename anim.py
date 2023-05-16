@@ -30,9 +30,12 @@ class Anim:
         Retourne ensuite self.display_pos.
         """
         new_positions = self.integrator.get_new_positions()
+        print("énergie mécanique :", self.integrator.n_body.compute_emec(),
+              "temps écoulé :", self.integrator.t)
         for i, body in enumerate(self.integrator.n_body):
             x, y = new_positions[i].x, new_positions[i].y
             self.display_pos[i].set_data(x, y)
+
         return self.display_pos
 
     def go(self, interval: int):
@@ -56,11 +59,11 @@ def test_anim():
         Body
     )
     from integrator import BaseIntegrator
-    v_init = 1
     n_body = NBody(
         [
-            Body(1, 0, 0, 0, - v_init),
-            Body(1, 2, 0, 0, v_init)
+            Body(100, 0, 0, 0, 0),
+            Body(1, 5, 0, 0, 5),
+            Body(0.1, 0.1, 0, 0, 20)
         ]
     )
     integrator = BaseIntegrator(0.01, n_body)
