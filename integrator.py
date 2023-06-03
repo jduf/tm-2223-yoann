@@ -42,7 +42,7 @@ class BaseIntegrator:
         return new_positions
 
 
-class RKIntegrator:
+class RK_4Integrator:
 
     def __init__(self, dt, n_body: NBody):
         self.dt = dt
@@ -67,37 +67,63 @@ class RKIntegrator:
             new_positions.append(self.n_body.n_body[i].r)"""
 
             F1 = self.n_body.n_body[i].r
-            F2 = self.n_body.n_body[i].v * self.dt / 2 + F1 + \
-                   F1 * self.dt / 2
-            F3 = self.n_body.n_body[i].v * self.dt / 2 + \
-                   F1 + F2 * self.dt / 2
-            F4 = self.n_body.n_body[i].v * self.dt + F1 + \
-                   F3 * self.dt
-            r_i = F1 + self.dt / 6 * \
-                  (F1 + 2 * F2 + 2 * F3 + F4)
+            F2 = self.n_body.n_body[i].v * self.dt / 2 + F1 + F1 * self.dt / 2
+            F3 = self.n_body.n_body[i].v * self.dt / 2 + F1 + F2 * self.dt / 2
+            F4 = self.n_body.n_body[i].v * self.dt + F1 + F3 * self.dt
+            r_i = F1 + self.dt / 6 * (F1 + 2 * F2 + 2 * F3 + F4)
             self.n_body.n_body[i].r = r_i
+            if i == 1:
+                print("position objet 1", r_i.x, r_i.y)
             new_positions.append(r_i)
 
         new_vitesses = []
         resultantes = self.n_body.compute_resultante()
+        print("force sur objet 1", resultantes[1].x, resultantes[1].y)
         for i in range(self.len_n):
             a_i = resultantes[i] / self.n_body.n_body[i].m
 
             F1_v = self.n_body.n_body[i].v
-            F2_v = a_i * self.dt / 2 + F1_v + \
-                   F1_v * self.dt / 2
-            F3_v = a_i * self.dt / 2 + \
-                   F1_v + F2_v * self.dt / 2
-            F4_v = a_i * self.dt + F1_v + \
-                   F3_v * self.dt
-            v_i = F1_v + self.dt / 6 * \
-                  (F1_v + 2 * F2_v + 2 * F3_v + F4_v)
+            F2_v = a_i * self.dt / 2 + F1_v + F1_v * self.dt / 2
+            F3_v = a_i * self.dt / 2 + F1_v + F2_v * self.dt / 2
+            F4_v = a_i * self.dt + F1_v + F3_v * self.dt
+            v_i = F1_v + self.dt / 6 * (F1_v + 2 * F2_v + 2 * F3_v + F4_v)
             self.n_body.n_body[i].v = v_i
+            if i == 1:
+                print("vitesse objet 1", v_i.x, v_i.y)
             new_vitesses.append(v_i)
 
         self.t += self.dt
 
         return new_positions
+
+
+class RK_2Integrator:
+    def __init__(self, dt, n_body: NBody):
+        self.dt = dt
+        self.t = 0
+        self.n_body = n_body
+        self.len_n = len(self.n_body.n_body)
+
+    def get_new_positions(self):
+        new_positions = []
+        new_vitesses = []
+        resultantes = self.n_body.compute_resultante()
+
+        for i in range(self.len_n):
+            r_i = self.n_body.n_body[i].r + self.dt ** 2 / 2 * self.n_body.n_body[i].v * (1 + self.dt ** 2 / 2)
+            self.n_body.n_body[i].r = r_i
+            print(r_i.x, r_i.y)
+            new_positions.append(r_i)
+
+            a_i = resultantes[i] / self.n_body.n_body[i].m
+            v_i = self.n_body.n_body[i].v + self.dt ** 2 / 2 * a_i * (1 + self.dt ** 2 / 2)
+            self.n_body.n_body[i].v = v_i
+            new_vitesses.append(v_i)
+        self.t += self.dt
+
+        return new_positions
+
+
 
 
 def test_integrator():
