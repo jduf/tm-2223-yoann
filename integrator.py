@@ -1,3 +1,5 @@
+import keyboard
+from vector_finished import Vector
 from nbody import NBody
 
 # On implémente ici un algorithme pour faire évoluer le système dans le temps.
@@ -84,6 +86,71 @@ class RK_4Integrator:
         return new_positions
 
 
+class RK_4Integrator_reel:
+
+    def __init__(self, dt, n_body: NBody, propulsion):
+        self.dt = dt
+        self.t = 0
+        self.n_body = n_body
+        self.len_n = len(self.n_body.n_body)
+        self.propulsion_plus_y = Vector(0, propulsion)
+        self.propulsion_moins_y = Vector(0, -propulsion)
+        self.propulsion_plus_x = Vector(propulsion, 0)
+        self.propulsion_moins_x = Vector(-propulsion, 0)
+
+    def get_new_positions(self):
+        new_positions = []
+
+        for i in range(self.len_n):
+
+            k1 = self.n_body.n_body[i].v * self.dt
+            k2 = self.dt / 2 * (self.n_body.n_body[i].v + self.dt / 2 * k1)
+            k3 = self.dt / 2 * (self.n_body.n_body[i].v + self.dt / 2 * k2)
+            k4 = self.dt * (self.n_body.n_body[i].v + self.dt / 2 * k3)
+            r_i = self.n_body.n_body[i].r + self.dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+            self.n_body.n_body[i].r = r_i
+            if i == 2:
+                print("position Apollo", r_i.x, r_i.y)
+
+            new_positions.append(r_i)
+
+        new_vitesses = []
+        resultantes = self.n_body.compute_resultante()
+
+        for i in range(self.len_n):
+            if i == 2:
+                if keyboard.is_pressed("z") == True:
+                    a_i = (resultantes[i] + self.propulsion_plus_y) / self.n_body.n_body[i].m
+
+                elif keyboard.is_pressed("h") == True:
+                    a_i = (resultantes[i] + self.propulsion_moins_y) / self.n_body.n_body[i].m
+
+                elif keyboard.is_pressed("j") == True:
+                    a_i = (resultantes[i] + self.propulsion_plus_x) / self.n_body.n_body[i].m
+
+                elif keyboard.is_pressed("g") == True:
+                    a_i = (resultantes[i] + self.propulsion_moins_x) / self.n_body.n_body[i].m
+
+                else:
+                    a_i = resultantes[i] / self.n_body.n_body[i].m
+
+            else:
+                a_i = resultantes[i] / self.n_body.n_body[i].m
+
+            k1_v = a_i * self.dt
+            k2_v = self.dt / 2 * (a_i + self.dt / 2 * k1_v)
+            k3_v = self.dt / 2 * (a_i + self.dt / 2 * k2_v)
+            k4_v = self.dt * (a_i + self.dt / 2 * k3_v)
+            v_i = self.n_body.n_body[i].v + self.dt / 6 * (k1_v + 2 * k2_v + 2 * k3_v + k4_v)
+            self.n_body.n_body[i].v = v_i
+
+            new_vitesses.append(v_i)
+
+        self.t += self.dt
+
+        return new_positions
+
+    
 class RK_2Integrator:
     def __init__(self, dt, n_body: NBody):
         self.dt = dt
@@ -99,7 +166,6 @@ class RK_2Integrator:
         for i in range(self.len_n):
             r_i = self.n_body.n_body[i].r + self.dt ** 2 / 2 * self.n_body.n_body[i].v * (1 + self.dt ** 2 / 2)
             self.n_body.n_body[i].r = r_i
-            print(r_i.x, r_i.y)
             new_positions.append(r_i)
 
             a_i = resultantes[i] / self.n_body.n_body[i].m
