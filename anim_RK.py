@@ -41,13 +41,16 @@ for i in range(6200000):
 
 
     if keyboard.is_pressed("m"):
+        bis_scores = tous_scores
+        vx_bis = vx_init
+        vy_bis = vy_init
         for i in range(50):
-            m = max(tous_scores)
-            p = [i for i, j in enumerate(tous_scores) if j == m]
-            a = vx_init[p[0]]
-            b = vy_init[p[0]]
+            m = max(bis_scores)
+            p = [i for i, j in enumerate(bis_scores) if j == m]
+            a = vx_bis[p[0]]
+            b = vy_bis[p[0]]
             print(a, b)
 
-            tous_scores.remove(m)
-            vx_init.remove(a)
-            vy_init.remove(b)
+            bis_scores.remove(m)
+            vx_bis.remove(a)
+            vy_bis.remove(b)
