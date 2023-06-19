@@ -6,27 +6,30 @@ import random
 from distance_matrix import *
 
 tous_scores = []
-vx_init = []
-vy_init = []
+facteurs_x = []
+facteurs_y = []
 count = 0
 
-for i in range(2000000):
+for i in range(200000):
     n_body = NBody(
         [
             Body(597, 0, 0, 0, 0),
             Body(7.34, 4, 0, 0, 12),
-            Body(0.2887e-17, 0, 0, round(random.uniform(59.2, 59.3), 4), round(random.uniform(28.4, 28.5), 4))
+            Body(0.2887e-17, 0, 0, 59.2626, 28.4432)
         ]
     )
-    integrator = RK_4Integrator(0.1, n_body)
-    vx_init.append(n_body.n_body[2].vx)
-    vy_init.append(n_body.n_body[2].vy)
+    integrator = RK_4Integrator_reel(0.1, n_body, 8e-16)
+    facteurs_x.append(integrator.a)
+    facteurs_y.append(integrator.b)
 
     score = 0
-    while integrator.t < 40:
-        d = integrator.n_body.n_body[2].r - integrator.n_body.n_body[1].r
+    for t in range(204):
+        if integrator.t > 15 and integrator.n_body.n_body[2].r == Vector(0, 0):
+            score = 0
+            break
+        d = integrator.n_body.n_body[2].r - integrator.n_body.n_body[0].r
         d = d.norm()
-        score += 100 - d
+        score += d
         integrator.get_new_positions()
 
     tous_scores.append(score)
@@ -34,21 +37,21 @@ for i in range(2000000):
     print(count)
 
     if keyboard.is_pressed("l"):
-        m = max(tous_scores)
+        m = min(tous_scores)
         p = [i for i, j in enumerate(tous_scores) if j == m]
-        a = vx_init[p[0]]
-        b = vy_init[p[0]]
-        print(a, b, "score:", m)
+        a = facteurs_x[p[0]]
+        b = facteurs_y[p[0]]
+        print(integrator.a, integrator.b, "score:", m)
 
 
 
 for i in range(1000):
-    m = max(tous_scores)
+    m = min(tous_scores)
     p = [i for i, j in enumerate(tous_scores) if j == m]
-    a = vx_init[p[0]]
-    b = vy_init[p[0]]
+    a = facteurs_x[p[0]]
+    b = facteurs_y[p[0]]
     print(a, b, "score:", m)
 
     tous_scores.remove(m)
-    vx_init.remove(a)
-    vy_init.remove(b)
+    facteurs_x.remove(a)
+    facteurs_y.remove(b)

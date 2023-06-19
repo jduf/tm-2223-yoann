@@ -1,4 +1,5 @@
 import keyboard
+import random
 from vector_finished import Vector
 from nbody import NBody
 
@@ -97,6 +98,8 @@ class RK_4Integrator_reel:
         self.propulsion_moins_y = Vector(0, -propulsion)
         self.propulsion_plus_x = Vector(propulsion, 0)
         self.propulsion_moins_x = Vector(-propulsion, 0)
+        self.a = 0.454 #round(random.uniform(0.4, 0.6), 3)
+        self.b = 4.5 #round(random.uniform(4.3, 4.5), 3)
 
     def get_new_positions(self):
         new_positions = []
@@ -109,8 +112,6 @@ class RK_4Integrator_reel:
             k4 = self.dt * (self.n_body.n_body[i].v + self.dt / 2 * k3)
             r_i = self.n_body.n_body[i].r + self.dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
             self.n_body.n_body[i].r = r_i
-            if i == 2:
-                print("position Apollo", r_i.x, r_i.y)
 
             new_positions.append(r_i)
 
@@ -130,6 +131,9 @@ class RK_4Integrator_reel:
 
                 elif keyboard.is_pressed("g") == True:
                     a_i = (resultantes[i] + self.propulsion_moins_x) / self.n_body.n_body[i].m
+
+                elif 18.8 < self.t and 19.5 > self.t:
+                    a_i = (resultantes[i] + self.a * self.propulsion_plus_x + self.b * self.propulsion_plus_y) / self.n_body.n_body[i].m
 
                 else:
                     a_i = resultantes[i] / self.n_body.n_body[i].m
