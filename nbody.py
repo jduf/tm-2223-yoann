@@ -58,24 +58,27 @@ class NBody:
         """
         self.n_body = n_body
         self.len = len(n_body)
-
-
+        self.r_all = []
+        for i in range(self.len):
+            self.r_all.append(self.n_body[i].r)
+        self.ds = DistanceMatrix(self.r_all)
     def __iter__(self) -> Iterator:
         """Permet de faire une boucle for sur l'ensemble des objets"""
         for body in self.n_body:
             yield body
 
     def compute_forces(self):
-        G = 1  # 6.7*10**-11
+        G = 1  # 6.7e-11
         forces = []
         self.r_all = []
         for i in range(self.len):
             self.r_all.append(self.n_body[i].r)
-        self.ds = DistanceMatrix(self.r_all)
+        self.ds.update(self.r_all)
         for i, body in enumerate(self.n_body):
             for j, other_body in enumerate(self.n_body):
                 if body.r != other_body.r:
-                    force = G * body.m * other_body.m * self.ds.r_over_rcube(i, j)
+                    force = G * body.m * other_body.m * \
+                            self.ds.r_over_rcube(i, j)
                 else:
                     force = Vector(0, 0)
 
@@ -113,8 +116,9 @@ class NBody:
                 if j == m:
                     pass
                 else:
-                    epot_sur_j += self.compute_forces()[self.len * j + m].norm()\
-                                  * self.ds._get(j, m).norm()
+                    epot_sur_j += \
+                        self.compute_forces()[self.len * j + m].norm() * \
+                        self.ds._get(j, m).norm()
         emec = ecin_tot + epot_tot
         return emec
 
