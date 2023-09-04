@@ -113,49 +113,48 @@ class RK_4_ajuste:
     def get_new_positions(self):
         new_positions = []
         new_vitesses = []
-        self.n_body.compute_resultante()
 
-        """if self.t > 3.3 and self.t < 3.4:
-            print("pos lune", self.n_body.n_body[1].r.x, self.n_body.n_body[1].r.y)
-            print("pos apollo", self.n_body.n_body[2].r.x, self.n_body.n_body[2].r.y)"""
+        self.n_body.compute_resultante()
+        for k, body in enumerate(self.n_body.n_body):
+            if k == 1:
+                print(body.res_force.x, body.res_force.y)
 
         a_i = [body.res_force / body.m for body in self.n_body.n_body]
-
         k1 = [body.v * self.dt for body in self.n_body.n_body]
         k1_v = [a * self.dt for a in a_i]
 
 
         temp_n_body_k2 = copy.deepcopy(self.n_body)
-        self.n_body.compute_resultante()
-        a_i = [body.res_force / body.m for body in self.n_body.n_body]
         for body, a in zip(temp_n_body_k2.n_body, a_i):
             body.r += body.v * self.dt / 2
             body.v += a * self.dt / 2
+        temp_n_body_k2.compute_resultante()
+        a_i2 = [body.res_force / body.m for body in temp_n_body_k2]
 
         k2 = [self.dt / 2 * (v + self.dt / 2 * k) for v, k in zip([body.v for body in temp_n_body_k2.n_body], k1)]
-        k2_v = [self.dt / 2 * (a + self.dt / 2 * k1) for a, k1 in zip(a_i, k1_v)]
+        k2_v = [self.dt / 2 * (a + self.dt / 2 * k1) for a, k1 in zip(a_i2, k1_v)]
 
 
         temp_n_body_k3 = copy.deepcopy(self.n_body)
-        self.n_body.compute_resultante()
-        a_i = [body.res_force / body.m for body in self.n_body.n_body]
         for body, a, k2_val in zip(temp_n_body_k3.n_body, a_i, k2_v):
             body.r += body.v * self.dt / 2
             body.v += k2_val * self.dt / 2
+        temp_n_body_k3.compute_resultante()
+        a_i3 = [body.res_force / body.m for body in temp_n_body_k3]
 
         k3 = [self.dt / 2 * (v + self.dt / 2 * k) for v, k in zip([body.v for body in temp_n_body_k3.n_body], k2)]
-        k3_v = [self.dt / 2 * (a + self.dt / 2 * k2) for a, k2 in zip(a_i, k2_v)]
+        k3_v = [self.dt / 2 * (a + self.dt / 2 * k2) for a, k2 in zip(a_i3, k2_v)]
 
 
         temp_n_body_k4 = copy.deepcopy(self.n_body)
-        self.n_body.compute_resultante()
-        a_i = [body.res_force / body.m for body in self.n_body.n_body]
         for body, a, k3_val in zip(temp_n_body_k4.n_body, a_i, k3_v):
             body.r += body.v * self.dt
             body.v += k3_val * self.dt
+        temp_n_body_k4.compute_resultante()
+        a_i4 = [body.res_force / body.m for body in temp_n_body_k4]
 
         k4 = [self.dt * (v + self.dt / 2 * k) for v, k in zip([body.v for body in temp_n_body_k4.n_body], k3)]
-        k4_v = [self.dt * (a + self.dt / 2 * k3) for a, k3 in zip(a_i, k3_v)]
+        k4_v = [self.dt * (a + self.dt / 2 * k3) for a, k3 in zip(a_i4, k3_v)]
 
         for i, body in enumerate(self.n_body.n_body):
             r_i = body.r + self.dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])
