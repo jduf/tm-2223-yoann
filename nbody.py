@@ -1,4 +1,7 @@
 from typing import Iterator
+import keyboard
+import random
+import math
 from distance_matrix import DistanceMatrix
 from vector_finished import Vector
 
@@ -10,12 +13,9 @@ class Body:
         resultante)
         """
         self.m = m
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
         self.r = Vector(x, y)
         self.v = Vector(vx, vy)
+        self.res_force = Vector(0, 0)
 
     def __sub__(self, other) -> Vector:
         """
@@ -28,26 +28,35 @@ class Body:
         différence de deux objets. Il faut donc définir cette opération pour la
         class Body
         """
-        self.d = self.other = Vector(0, 0)
-        self.other = other
-        self.d.x = self.x - self.other.x
-        self.d.y = self.y - self.other.y
-        return self.d
+        return self.r - other.r
 
     def ecin(self) -> float:
         """Retourne l'énergie cinétique de ce objet"""
-        ecin = 1/2 * self.m * self.v.norm_squared()
-        return ecin
+        return 1/2 * self.m * self.v.norm_squared()
 
     def reset_force(self) -> None:
         """Remet la résultante des forces à zéro"""
-        self.res_force = 0
-        return self.res_force
+        self.res_force = Vector(0, 0)
 
     def add_force(self, force: Vector) -> None:
         """Additionne la force à la résultante des forces"""
         self.res_force += force
-        return self.res_force
+
+
+class Active_Body(Body):
+    def __init__(self,m ,x , y, vx, vy, propulsion, angle, boolean, increment=0):
+        super().__init__(m, x, y, vx, vy)
+        self.propulsion = propulsion
+        self.angle = angle
+        self.boolean = boolean
+        self.increment = increment
+
+
+    def reset_force(self) -> None:
+        if self.boolean == True:
+            self.res_force = Vector(math.cos(self.angle) * self.propulsion, math.sin(self.angle) * self.propulsion)
+        else:
+            self.res_force = Vector(0, 0)
 
 
 class NBody:
@@ -57,11 +66,9 @@ class NBody:
         qui contient les distances entre les objets.
         """
         self.n_body = n_body
-        self.len = len(n_body)
-        self.r_all = []
-        for i in range(self.len):
-            self.r_all.append(self.n_body[i].r)
-        self.ds = DistanceMatrix(self.r_all)
+        self.len_n = len(self.n_body)
+        self.ds = DistanceMatrix([body.r for body in self.n_body])
+        self.emec = 0
     def __iter__(self) -> Iterator:
         """Permet de faire une boucle for sur l'ensemble des objets"""
         for body in self.n_body:
@@ -70,11 +77,11 @@ class NBody:
     def compute_forces(self):
         G = 1  # 6.7e-11
         forces = []
-        self.r_all = []
-        for i in range(self.len):
-            self.r_all.append(self.n_body[i].r)
-        self.ds.update(self.r_all)
+        positions = [body.r for body in self.n_body]
+        self.ds.update(positions)
+
         for i, body in enumerate(self.n_body):
+            body.reset_force()
             for j, other_body in enumerate(self.n_body):
                 if body.r != other_body.r:
                     force = G * body.m * other_body.m * \
@@ -87,40 +94,32 @@ class NBody:
 
     def compute_resultante(self) -> None:
         """Calcule résultante des forces agissant sur chaque objet"""
-        resultantes = []
         forces = self.compute_forces()
-        for j in range(self.len):
-            forces_sur_j = []
-            for m in range(self.len):
-                forces_sur_j.append(forces[self.len * j + m])
-# l'intervalle des forces s'appliquant sur l'objet j
+        for i, body in enumerate(self.n_body):
+            for j in range(self.len_n):
+                body.add_force(forces[i*self.len_n + j])
+        return [body.res_force for body in self.n_body]
 
-            resultante_sur_j = Vector(0, 0)
-            for k in range(self.len):
-                resultante_sur_j += forces_sur_j[k]
 
-            resultantes.append(resultante_sur_j)
-
-        return resultantes
 
     def compute_emec(self) -> None:
         """Calcule l'énergie mécanique totale du système de n objets"""
         ecin_tot = 0
-        for i in range(self.len - 1):
-            ecin_tot += self.n_body[i].ecin()
-
+        for body in self.n_body:
+            ecin_tot += body.ecin()
         epot_tot = 0
-        for j in range(self.len):
+        for j in range(self.len_n):
             epot_sur_j = 0
-            for m in range(self.len):
-                if j == m:
-                    pass
-                else:
+            for m in range(self.len_n):
+                if j < m:
                     epot_sur_j += \
-                        self.compute_forces()[self.len * j + m].norm() * \
+                        self.compute_forces()[self.len_n * j + m].norm() * \
                         self.ds._get(j, m).norm()
-        emec = ecin_tot + epot_tot
-        return emec
+            epot_tot += epot_sur_j
+            # print("epot", epot_tot)
+        self.emec = ecin_tot + epot_tot
+
+
 
 
 def test_n_body():
@@ -146,11 +145,11 @@ def test_n_body():
         Vector(-1-a, a),
     ]
     for i, body in enumerate(nb.n_body):
-        assert nb.compute_resultante()[i] == vector_list[i]
+        assert body.res_force == vector_list[i]
 
     nb.compute_emec()
     print(nb.compute_emec())
-    assert nb.compute_emec() == 2.7071067811865475
+    assert nb.emec == 2.7071067811865475
 
     for i, body in enumerate(nb):
         assert nb.compute_resultante()[i] == vector_list[i]

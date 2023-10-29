@@ -18,9 +18,11 @@ class Anim:
         self.ax.set_xlim(-10, 10)  # définit la longueur de l'axe x
         self.ax.set_ylim(-10, 10)  # définit la longueur de l'axe y
         # initialise chaque position à afficher
+        markersizes = [5, 3, 1]
+        self.colors = ['blue', 'grey', 'orange']
         self.display_pos = [
-            self.ax.plot([], [], 'o')[0]
-            for _ in self.integrator.n_body
+            self.ax.plot([], [], 'o', markersize=markersizes[i], color=self.colors[i])[0]
+            for i, _ in enumerate(self.integrator.n_body)
         ]
 
     def _update(self, frame):
@@ -29,12 +31,18 @@ class Anim:
         au pas de temps suivant créé par self.integrator.get_new_positions().
         Retourne ensuite self.display_pos.
         """
-        new_positions = self.integrator.get_new_positions()
-        print("énergie mécanique :", self.integrator.n_body.compute_emec(),
-              "temps écoulé :", self.integrator.t)
+        if self.integrator.n_body.len_n >= 3:
+            prev_x, prev_y = self.integrator.n_body.n_body[2].r.x, self.integrator.n_body.n_body[2].r.y
+        self.integrator.get_new_positions()
+        self.integrator.n_body.compute_emec()
+        print("énergie mécanique :", self.integrator.n_body.emec,
+              "temps écoulé :", round(self.integrator.t, 3))
+
         for i, body in enumerate(self.integrator.n_body):
-            x, y = new_positions[i].x, new_positions[i].y
+            x, y = body.r.x, body.r.y
             self.display_pos[i].set_data(x, y)
+            if i == 2:
+                self.ax.plot([prev_x, x], [prev_y, y], color=self.colors[i])
 
         return self.display_pos
 
@@ -72,3 +80,9 @@ def test_anim():
 
 if __name__ == "__main__":
     test_anim()
+
+class Anim_earth(Anim):
+    def __init__(self, integrator):
+        super().__init__(integrator)
+        self.ax.set_xlim(-0.1, 0.1)
+        self.ax.set_ylim(-0.1, 0.1)

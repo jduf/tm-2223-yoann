@@ -55,26 +55,33 @@ class DistanceMatrix:
     def __init__(self, objects: list[Vector]):
         self.objects = objects
         self.n = len(objects)
-        self.update(objects)
+        self.update(self.objects)
 
     def update(self, new_objects) -> None:
         """Met à jour les distances entre les objets"""
-        self.rij = []
+        """self.rij = []
         for j in range(self.n):
             for i in range(self.n):
                 if j < i:
-                    b = new_objects[i] - new_objects[j]
-                    self.rij.append(b)
+                    distance_i_j = new_objects[j] - new_objects[i]
+                    self.rij.append(distance_i_j)
                 else:
-                    pass
+                    pass"""
+        self.rij = []
+        for j in range(self.n):
+            sous_liste = []
+            for i in range(self.n):
+                distance_i_j = new_objects[j] - new_objects[i]
+                sous_liste.append(distance_i_j)
+            self.rij.append(sous_liste)
 
     def _get(self, i: int, j: int) -> Vector:
         """
         Retourne le vecteur de distance entre l'objet i et j
         """
-        if j < i:
+        """if j < i:
             a = j * (2 * self.n - j - 3) / 2 + i
-            a = a.__int__()
+            a = int(a)
             distance = -self.rij[a-1]
         elif i == j:
             distance = Vector(0, 0)
@@ -86,7 +93,8 @@ class DistanceMatrix:
             a = a.__int__()
             distance = self.rij[a-1]
 
-        return distance
+        return distance"""
+        return self.rij[j][i]
 
     def unit_vector(self, i: int, j: int) -> Vector:
         """
@@ -96,12 +104,12 @@ class DistanceMatrix:
         d = self._get(i, j)
         a = d.norm()
         if a == 0:
-            raise AssertionError
+            return Vector(0, 0)
         else:
             u = Vector(0, 0)
             u.x = d.x / a
             u.y = d.y / a
-        return Vector(u.x, u.y)
+            return Vector(u.x, u.y)
 
     def norm(self, i: int, j: int) -> float:
         """
@@ -132,7 +140,7 @@ class DistanceMatrix:
             r_over_rcube = r/a**3
 
         else:
-            raise AssertionError
+            r_over_rcube = Vector(0, 0)
 
         return r_over_rcube
 
@@ -171,7 +179,7 @@ def test_distance_matrix() -> None:
     assert ds.r_over_rcube(1, 0) == Vector(-0.032, 0.024)
 
     objs[2] = Vector(4, 0)
-    ds.update()
+    ds.update(objs)
     assert ds.norm_squared(1, 2) == 0
 
 

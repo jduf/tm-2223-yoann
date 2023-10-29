@@ -56,33 +56,19 @@ class Vector:
     # les opérateurs '+,-,-,*,=='.
     def __add__(self, other):
         """Retourne la somme entre le Vector self et le Vector other"""
-        self.add = self.other = Vector(0, 0)
-        self.other = other
-        self.add.x = self.x + self.other.x
-        self.add.y = self.y + self.other.y
-        return self.add
+        return Vector(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
         """Retourne la différence entre le Vector self et le Vector other"""
-        self.sub = self.other = Vector(0, 0)
-        self.other = other
-        self.sub.x = self.x - self.other.x
-        self.sub.y = self.y - self.other.y
-        return self.sub
+        return Vector(self.x - other.x, self.y - other.y)
 
     def __neg__(self):
         """Retourne l'inverse du Vector self"""
-        self.neg = Vector(0, 0)
-        self.neg.x = -self.x
-        self.neg.y = -self.y
-        return self.neg
+        return Vector(- self.x, - self.y)
 
     def __mul__(self, a):
         """Retourne le produit entre un entier et le Vector self"""
-        self.mul = Vector(0, 0)
-        self.mul.x = self.x * a
-        self.mul.y = self.y * a
-        return self.mul
+        return Vector(a * self.x, a * self.y)
 
     # Astuce pour faire en sorte que 4*Vector(2,3) soit égal à Vector(2,3)*4
     __rmul__ = __mul__
@@ -91,10 +77,7 @@ class Vector:
         """
         Test si le Vector self est égal au Vector other
         """
-        self.other = Vector(0, 0)
-        self.other = other
-
-        if self.other.x == self.x and self.other.y == self.y:
+        if other.x == self.x and other.y == self.y:
             return True
         else:
             return False
@@ -104,34 +87,26 @@ class Vector:
         """
         Retourne la norme au carré du Vector self
         """
-        norm_squared = (self.x * self.x + self.y * self.y)
-        return norm_squared
+        return self.x ** 2 + self.y ** 2
 
     # Pour calculer la norme, lisez le site web référencé ci-dessus afin
     # d'importer le module math et d'utiliser la fonction sqrt.
     def norm(self):
-        norm = math.sqrt(self.x * self.x + self.y * self.y)
-        return norm
+        return math.sqrt(self.x ** 2 + self.y ** 2)
 
     def dot(self, other):
-        self.other = Vector(0, 0)
-        self.other = other
-        dot = self.x * self.other.x + self.y * self.other.y
-        return dot
+        return self.x * other.x + self.y * other.y
 
     def __truediv__(self, d):
-        assert d != 0
-        self.div = Vector(0, 0)
-        self.div.x = self.x / d
-        self.div.y = self.y / d
-        return self.div
+        if d != 0:
+            return Vector(self.x / d, self.y / d)
+        else:
+            return Vector(0, 0)
 
     def angle(self, other):
-        self.other = Vector(0, 0)
-        self.other = other
-        angle = math.acos((self.x * self.other.x + self.y * self.other.y) /
+        angle = math.acos((self.x * other.x + self.y * other.y) /
                           (math.sqrt((self.x)**2 + (self.y)**2) *
-                           math.sqrt((self.other.x)**2 + (self.other.y)**2)))
+                           math.sqrt((other.x)**2 + (other.y)**2)))
         angle = math.degrees(angle)
         return angle
 
