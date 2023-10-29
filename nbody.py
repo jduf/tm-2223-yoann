@@ -1,6 +1,4 @@
 from typing import Iterator
-import keyboard
-import random
 import math
 from distance_matrix import DistanceMatrix
 from vector_finished import Vector
@@ -44,17 +42,18 @@ class Body:
 
 
 class Active_Body(Body):
-    def __init__(self,m ,x , y, vx, vy, propulsion, angle, boolean, increment=0):
+    def __init__(self, m, x, y, vx, vy, propulsion, angle,
+                 boolean, increment=0):
         super().__init__(m, x, y, vx, vy)
         self.propulsion = propulsion
         self.angle = angle
         self.boolean = boolean
         self.increment = increment
 
-
     def reset_force(self) -> None:
-        if self.boolean == True:
-            self.res_force = Vector(math.cos(self.angle) * self.propulsion, math.sin(self.angle) * self.propulsion)
+        if self.boolean is True:
+            self.res_force = Vector(math.cos(self.angle) * self.propulsion,
+                                    math.sin(self.angle) * self.propulsion)
         else:
             self.res_force = Vector(0, 0)
 
@@ -69,6 +68,7 @@ class NBody:
         self.len_n = len(self.n_body)
         self.ds = DistanceMatrix([body.r for body in self.n_body])
         self.emec = 0
+
     def __iter__(self) -> Iterator:
         """Permet de faire une boucle for sur l'ensemble des objets"""
         for body in self.n_body:
@@ -100,8 +100,6 @@ class NBody:
                 body.add_force(forces[i*self.len_n + j])
         return [body.res_force for body in self.n_body]
 
-
-
     def compute_emec(self) -> None:
         """Calcule l'énergie mécanique totale du système de n objets"""
         ecin_tot = 0
@@ -118,8 +116,6 @@ class NBody:
             epot_tot += epot_sur_j
             # print("epot", epot_tot)
         self.emec = ecin_tot + epot_tot
-
-
 
 
 def test_n_body():

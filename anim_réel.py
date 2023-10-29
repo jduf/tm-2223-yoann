@@ -1,8 +1,7 @@
-from nbody import (NBody, Body, Active_Body)
+from nbody import NBody, Body, Active_Body
 from anim import Anim
-from integrator import *
-from math import sqrt
-import matplotlib.pyplot as plt
+import integrator
+
 # 4 unités = 380 000 km
 # orbite de parquage autour terre = 185,2 + 6371 km =~ 0.069 unités
 # moteur saturn 5 poussée = 6.77e6 N
@@ -11,10 +10,11 @@ n_body = NBody(
     [
             Body(597, 0, 0, 0, 0),
             Body(7.34, 4, 0, 0, 12.21679),
-            Active_Body(0.2887e-17, 0, -0.069, 107.437192, 39.995938, 0.002678, 10, False)
+            Active_Body(0.2887e-17, 0, -0.069, 107.437192,
+                        39.995938, 0.002678, 10, False)
     ]
 )
-integrator = BaseIntegrator(0.001, n_body)
+integrator = integrator.BaseIntegrator(0.001, n_body)
 anim = Anim(integrator)
 anim.go(1)
 
